@@ -2,12 +2,13 @@ version: "3.9"
 services:
   bot:
     image: hummingbot/hummingbot:development
+    container_name: ralph
     volumes:
-      - "./hummingbot_files/conf:/conf"
-      - "./hummingbot_files/logs:/logs"
-      - "./hummingbot_files/data:/data"
-      - "./hummingbot_files/scripts:/scripts"
-      - "./hummingbot_files/certs:/certs"
+      - "/$folder/conf:/conf"
+      - "/$folder/logs:/logs"
+      - "/$folder/data:/data"
+      - "/$folder/scripts:/scripts"
+      - "/$folder/certs:/certs"
     environment:
       - CONFIG_PASSWORD=test
       - CONFIG_FILE_NAME=log_price_example.py
