@@ -6,7 +6,7 @@ echo
 echo "===============  PULL REQUEST DOWNLOADER version 0.01 ==============="
 echo
 echo
-echo "ℹ️  Press [ENTER] for default values:"
+echo "ℹ️  Press [ENTER] for default values"
 echo
 echo
 
@@ -49,6 +49,19 @@ look_for_dir (){
     fi
 }; look_for_dir
 
+look_for_conda (){
+    # this function look for Anaconda or Minconda dir
+    if [ -d "$HOME/miniconda3" ]
+    then
+        source $HOME/miniconda3/etc/profile.d/conda.sh
+    elif [ -d "$HOME/anaconda3" ]
+    then 
+        source $HOME/anaconda3/etc/profile.d/conda.sh
+    else
+        echo "No python distributior available (Anaconda3 or Miniconda3)"
+    fi
+}
+
 echo 
 echo "Repository: $github_repo"
 echo "Checkout branch: $github_branch"
@@ -69,10 +82,9 @@ then
     # echo
     git clone -b $github_branch $github_repo $github_folder # cloning, checkou and folder creation
     cd $github_folder
+    ./clean && ./install
+    look_for_conda && conda activate hummingbot # && ./compile
     git log | head -5
-    echo "Clone, checkout and folder directory successfully created!"
-    echo 
-    sudo ./clean && ./install && conda activate hummingbot && ./compile
     echo
     $SHELL
 else
