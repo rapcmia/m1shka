@@ -1,4 +1,6 @@
 #!/bin/bash
+
+
 clear
 # banner
 echo
@@ -56,30 +58,19 @@ echo "Directory: $PWD/$github_folder"
 read -p "Proceed? (default: yes) >> " github_next
 echo
 
+proceed_installation (){
+    # this functions installs the hummingbot program
+    git clone -b $github_branch $github_repo $github_folder 
+    cd $github_folder && ./uninstall && ./clean 
+    conda create -n hummingbot -f setup/environment.yml
+}
 if [[ $github_next == "Yes" ]] || [[ $github_next == "y" ]] || [[ $github_next == "Y" ]] || [[ $github_next == "yes" ]] || [[ $github_next == "" ]]
 then 
-    # mkdir $PWD/$github_folder # create directory
-    # echo -ne '##### (33%)\r'
-    # sleep 1
-    # echo -ne '############# (66%)\r'
-    # sleep 1
-    # echo -ne '####################### \r'
-    # echo -ne 'Folder succesfully created (100%)'
-    # echo
-    # echo
-    git clone -b $github_branch $github_repo $github_folder # cloning, checkou and folder creation
-    cd $github_folder
-    git log | head -5
-    echo "Clone, checkout and folder directory successfully created!"
-    echo 
-    sudo ./clean && ./install && conda activate hummingbot && ./compile
-    echo
-    $SHELL
+    proceed_installation
 else
     echo
     echo "Exiting setup since invalid answer! try again later"
     echo 
     exit 
 fi
-
 
