@@ -1,11 +1,24 @@
 #!/bin/bash
 
+# Compatibility logic for older Anaconda versions.
+if [ "${CONDA_EXE} " == " " ]; then
+    CONDA_EXE=$((find /opt/conda/bin/conda || find ~/anaconda3/bin/conda || \
+	    find /usr/local/anaconda3/bin/conda || find ~/miniconda3/bin/conda  || \
+	    find /root/miniconda/bin/conda || find ~/Anaconda3/Scripts/conda || \
+	    find $CONDA/bin/conda) 2>/dev/null)
+fi
+
+if [ "${CONDA_EXE}_" == "_" ]; then
+    echo "Please install Anaconda w/ Python 3.7+ first"
+    echo "See: https://www.anaconda.com/distribution/"
+    exit 1
+fi
 
 clear
 # banner
 echo
 echo
-echo "===============  PULL REQUEST DOWNLOADER version 0.01 ==============="
+echo "===============  HUMMINGBOT PRGEN version 0.01 ==============="
 echo
 echo
 echo "ℹ️  Press [ENTER] for default values:"
@@ -16,10 +29,10 @@ echo
 read -p "Enter repository to clone (default: https://github.com/hummingbot/hummingbot) >> " github_repo
 
 # prompt which branch should be use? development if from hummingbot by default 
-read -p "Enter branch name to checkout(default: hummingbot/development) >> " github_branch
+read -p "Enter branch name to checkout(default: development) >> " github_branch
 
 # prompt folder name to save pull request 
-read -p "Enter folder name >> " github_folder
+read -p "Enter folder name (default: hummingbot) >> " github_folder
 
 
 # input validation
@@ -40,7 +53,12 @@ look_for_dir (){
         x=0 ; folder_exist=false
         while [ $folder_exist == false ]
             do 
-                github_folder="folder_$x"
+                if [ $x == 0 ]; then
+                    github_folder="hummingbot"
+                else
+                    github_folder="hummingbot($x)"
+                fi
+
                 if [ -d "$PWD/$github_folder" ]
                 then 
                     x=$((x + 1)) # increments the default folder
@@ -58,12 +76,71 @@ echo "Directory: $PWD/$github_folder"
 read -p "Proceed? (default: yes) >> " github_next
 echo
 
-proceed_installation (){
-    # this functions installs the hummingbot program
-    git clone -b $github_branch $github_repo $github_folder 
-    cd $github_folder && ./uninstall && ./clean 
-    conda create -n hummingbot -f setup/environment.yml
+clear_waiting_time (){
+    # Nothing fancy, just adding 'done' text
+
+    sleep 0.02
+    echo -e " done!"
 }
+
+show_how2start(){
+    # This function only shows steps on how to start Hummingbot client 
+
+    echo
+    echo "To start Hummingbot client: "
+    echo "1. Go to $PWD"
+    echo "2. Run 'conda activate hummingbot'"
+    echo "3. Run 'bin/hummingbot.py'"
+    echo
+}
+
+proceed_installation (){
+    # this function installs the hummingbot program
+
+    # clone and download repository and move to folder
+    echo -ne "Cloning GitHub files to '$github_folder', downloading.."
+    git clone -b $github_branch $github_repo $github_folder &>/dev/null && cd $github_folder  
+    clear_waiting_time
+
+    ENV_FILE=setup/environment.yml 
+    CONDA_BIN=$(dirname ${CONDA_EXE})
+
+    # if statement checks for Hummingbot on the env list then update or create
+    if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
+        echo  -ne "Checking for available hummingbot env, this will take few minutes.."
+        ${CONDA_EXE} env update -f $ENV_FILE &>/dev/null
+    else
+        echo -ne " Creating Hummingbot env, this will take few minutes.."
+        ${CONDA_EXE} env create -f $ENV_FILE &>/dev/null
+    fi && clear_waiting_time
+
+    source "${CONDA_BIN}/activate" hummingbot # activates conda 
+
+    # if statement below checks if there is active conda env
+    if [[ -n "$CONDA_DEFAULT_ENV" ]]; then
+        echo -ne "Conda activate $CONDA_DEFAULT_ENV successfull! compiling files.. "
+        python setup.py build_ext --inplace &>/dev/null && clear_waiting_time # Run Hummingbot setup 
+        echo
+        echo "===============  HUMMINGBOT SUCCESSFULLY INSTALLED ==============="
+        echo
+        echo
+        echo "ℹ️  Repository: $github_repo"
+        echo "ℹ️  Branch: $github_branch"
+        echo
+        echo
+
+        read -p "Do you want to start the Hummingbot client (default: yes) >> " check_start
+        if [[ $check_start == "Yes" ]] || [[ $check_start == "y" ]] || [[ $check_start == "Y" ]] || [[ $check_start == "yes" ]] || [[ $check_start == "" ]]; then
+            echo "Hummingbot is loading now.." && bin/hummingbot.py # start Hummingbot client 
+            show_how2start
+        else
+            show_how2start
+        fi
+    else
+        echo "Conda is not yet activated, please run 'conda activate hummingbot'"
+    fi
+}
+
 if [[ $github_next == "Yes" ]] || [[ $github_next == "y" ]] || [[ $github_next == "Y" ]] || [[ $github_next == "yes" ]] || [[ $github_next == "" ]]
 then 
     proceed_installation
@@ -71,6 +148,6 @@ else
     echo
     echo "Exiting setup since invalid answer! try again later"
     echo 
-    exit 
+    exit 1
 fi
 
