@@ -83,17 +83,6 @@ clear_waiting_time (){
     echo -e " done!"
 }
 
-show_how2start(){
-    # This function only shows steps on how to start Hummingbot client 
-
-    echo
-    echo "To start Hummingbot client: "
-    echo "1. Go to $PWD"
-    echo "2. Run 'conda activate hummingbot'"
-    echo "3. Run 'bin/hummingbot.py'"
-    echo
-}
-
 proceed_installation (){
     # this function installs the hummingbot program
 
@@ -132,12 +121,17 @@ proceed_installation (){
         read -p "Do you want to start the Hummingbot client (default: yes) >> " check_start
         if [[ $check_start == "Yes" ]] || [[ $check_start == "y" ]] || [[ $check_start == "Y" ]] || [[ $check_start == "yes" ]] || [[ $check_start == "" ]]; then
             echo "Hummingbot is loading now.." && bin/hummingbot.py # start Hummingbot client 
-            show_how2start
-        else
-            show_how2start
         fi
+
+        echo
+        echo "To start Hummingbot client: "
+        echo "1. Go to $PWD"
+        echo "2. Run 'conda activate hummingbot'"
+        echo "3. Run 'bin/hummingbot.py'"
+        echo
     else
-        echo "Conda is not yet activated, please run 'conda activate hummingbot'"
+        echo "Conda is not yet activated, please run 'conda activate hummingbot' then './compile'. Use 'bin/hummingbot.py' to start"
+        exit 1
     fi
 }
 
