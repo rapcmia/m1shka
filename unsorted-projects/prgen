@@ -36,12 +36,12 @@ read -p "Enter folder name (default: hummingbot) >> " github_folder
 
 
 # input validation
-if [$github_repo == ""]
+if [[ $github_repo == "" ]]
 then 
     github_repo="https://github.com/hummingbot/hummingbot"
 fi
 
-if [$github_branch == ""]
+if [[ $github_branch == "" ]]
 then
     github_branch="development"
 fi
