@@ -14,7 +14,7 @@ if [ "${CONDA_EXE}_" == "_" ]; then
     exit 1
 fi
 
-clear
+# clear
 # banner
 echo
 echo

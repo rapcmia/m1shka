@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# clear
+# banner
+echo
+echo
+echo "===============  Update Hummingbot Docker ==============="
+echo
+echo
+echo "ℹ️  Press [ENTER] for default values:"
+echo
+
+echo "This setup lets you update Hummingbot docker images. There will be instances that you will need to delete your container_files to avoid possible compatibility issues"
+read -p "Do you want to proceed? (default: yes) >> " del_prevfolders
+if [[ $del_prevfolders == "Yes" || $del_prevfolders == "" || $del_prevfolders == "y" || $del_prevfolders == "yes"  || $del_prevfolders == "Y" ]]; then
+    echo
+else
+    echo
+    echo "Exiting setup now"
+    echo
+    exit
+fi
+
+
+read -p "Enter the docker image you want to update to latest (default: latest) >> " docker_image
+if [[ $docker_image == "" ]]; then
+    docker_image="latest"
+fi
+
+read -p "Enter which repository you want to pull the '$docker_image' >> " docker_repo
+if [[ $docker_repo == "" ]]; then
+    echo
+    echo "Invalid entry, exiting setup now"
+    echo 
+fi
+
+
