@@ -10,15 +10,20 @@ echo
 echo "ℹ️  Press [ENTER] for default values:"
 echo
 
-echo "This setup lets you update Hummingbot docker images. There will be instances that you will need to delete your container_files to avoid possible compatibility issues"
+echo "This setup will update Hummingbot docker images. There will be instances that you will need to manually delete your container_files to avoid possible compatibility issues"
 read -p "Do you want to proceed? (default: yes) >> " del_prevfolders
+
+exit_message(){
+    echo
+    echo "Exiting setup now, thanks!"
+    echo
+    exit
+}
+
 if [[ $del_prevfolders == "Yes" || $del_prevfolders == "" || $del_prevfolders == "y" || $del_prevfolders == "yes"  || $del_prevfolders == "Y" ]]; then
     echo
 else
-    echo
-    echo "Exiting setup now"
-    echo
-    exit
+    exit_message
 fi
 
 
@@ -27,11 +32,41 @@ if [[ $docker_image == "" ]]; then
     docker_image="latest"
 fi
 
-read -p "Enter which repository you want to pull the '$docker_image' >> " docker_repo
-if [[ $docker_repo == "" ]]; then
+
+display_container (){
+    # Check the number of containers created using the image input by the user and return value
+    # Exit setup if invalid 
     echo
-    echo "Invalid entry, exiting setup now"
-    echo 
+    count_containers=$(docker ps -a --filter ancestor=hummingbot/hummingbot:$docker_image --format "{{.ID}}" | wc -l)
+    if (( 0 >= $count_containers )); then
+        echo "There are no containers created using this '$docker_image'"
+    else
+        docker ps -a -f ancestor=hummingbot/hummingbot:$docker_image 
+        
+    fi 
+    echo
+}
+
+check_image (){
+    # Check if the image is available else, exit setup
+    count_image=$(docker images -f reference=hummingbot/hummingbot:$docker_image --format "{{.ID}}" | wc -l)
+    if [ $count_image == 1 ]; then
+        display_container
+    else 
+        echo
+        echo "No docker image found using '$docker_image', please try again"
+        echo && exit
+    fi
+}; check_image
+
+read -p "All ACTIVE containers will be forced stop, Do you want to proceed? (default: yes) >> " proceed_upd
+
+if [[ $proceed_upd == "Yes" || $proceed_upd == "" || $proceed_upd == "y" || $proceed_upd == "yes"  || $proceed_upd == "Y" ]]; then
+    echo "created image"
+else
+    exit_message
 fi
 
-
+## future updates 
+# Prompt to select which docker want to update {hummingbot or gateway}?
+# DRY code as much as possible
