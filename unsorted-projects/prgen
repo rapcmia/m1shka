@@ -26,7 +26,7 @@ echo
 echo
 
 # prompt if which repository? hummingbot by default
-read -p "Enter repository to clone (default: https://github.com/hummingbot/hummingbot) >> " github_repo
+read -p "Enter the profile of repository to clone (default: hummingbot) >> " github_repo
 
 # prompt which branch should be use? development if from hummingbot by default 
 read -p "Enter branch name to checkout(default: development) >> " github_branch
@@ -39,6 +39,8 @@ read -p "Enter folder name (default: hummingbot) >> " github_folder
 if [[ $github_repo == "" ]]
 then 
     github_repo="https://github.com/hummingbot/hummingbot"
+else
+    github_repo="https://github.com/$github_repo/hummingbot"
 fi
 
 if [[ $github_branch == "" ]]
@@ -96,7 +98,7 @@ proceed_installation (){
 
     # if statement checks for Hummingbot on the env list then update or create
     if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
-        echo  -ne "Checking for available hummingbot env, this will take few minutes.."
+        echo -ne "Checking for available hummingbot env, this will take few minutes.."
         ${CONDA_EXE} env update -f $ENV_FILE &>/dev/null
     else
         echo -ne " Creating Hummingbot env, this will take few minutes.."
