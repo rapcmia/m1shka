@@ -1,0 +1,64 @@
+#!/bin/bash
+
+clear
+
+read -p "Enter docker image (default: latest) >> " docker_image
+# read -p "Enter the directory of all container files >> " docker_container_dir
+echo
+
+# set docker_image to "latest" by default 
+if [[ $docker_image == "" ]]; then
+    docker_image="latest"
+fi
+
+check_image(){
+    local ci_image=$g
+    
+}
+
+
+container_names=$(docker ps -a --filter ancestor=hummingbot/hummingbot:$docker_image --format "{{.Names}}")
+container_to_array=($container_names)
+
+for ((i=0; i< ${#container_to_array[@]}; i++)); do
+    x="${container_to_array[((i))]}"
+    read -p "'$x' container will be created on '${PWD}/${x}_files/ (default: yes) >> " confirm_dir
+
+    if [[ $confirm_dir == "" ]]; then
+       if [ "$(docker inspect -f {{.State.Running}} $x)" == "true" ]; then
+            # check if there are active state containers and will not proceed with the setup
+            echo 
+            docker ps --filter "name=$x"
+            echo 
+            echo "'$x' is active at the moment, please stop the container first. Setup will exit now"
+            echo && exit
+        fi
+        xx = "${PWD}/${x}_files"
+        # docker rm $x
+        # docker run -itd --log-opt max-size=10m --log-opt max-file=5 \
+        # --network host \
+        # --name $x \
+        #     -v ${x}/conf:/home/hummingbot/conf \
+        #     -v ${xx}/conf/connectors:/home/hummingbot/conf/connectors \
+        #     -v ${xx}/conf/strategies:/home/hummingbot/conf/strategies \
+        #     -v ${xx}/logs:/home/hummingbot/logs \
+        #     -v ${xx}/data:/home/hummingbot/data \
+        #     -v ${xx}/pmm-scripts:/home/hummingbot/pmm-scripts \
+        #     -v ${xx}/scripts:/home/hummingbot/scripts \
+        #     -v ${xx}/certs:/home/hummingbot/certs \
+        # hummingbot/hummingbot:$docker_image
+    fi 
+done
+
+
+# IFS=$'\n' read -r -d '' -a container_names_array <<< "$container_names"
+
+
+
+# for display_dir in "${set_container_dir[@]}"; do
+#     echo "display_dir"
+# done
+
+echo
+
+# refrain from using $HOME 

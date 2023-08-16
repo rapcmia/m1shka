@@ -59,7 +59,10 @@ check_image (){
     fi
 }; check_image
 
-read -p "All ACTIVE containers will be forced stop, Do you want to proceed? (default: yes) >> " proceed_upd
+echo "⚠️  WARNING: This will attempt to update all instances of '$docker_image'. Any containers not in Exited () STATUS will cause the update to fail."
+echo
+
+read -p "Do you want to proceed? (default: yes) >> " proceed_upd
 
 if [[ $proceed_upd == "Yes" || $proceed_upd == "" || $proceed_upd == "y" || $proceed_upd == "yes"  || $proceed_upd == "Y" ]]; then
     echo "created image"
@@ -68,5 +71,17 @@ else
 fi
 
 ## future updates 
+
+#todos:
+    # When updating the docker image:
+    #     container must be removed
+    #     container must be recreated using the ame container dir
+    #     prompt the user the directory if its correct, then proceed
+        
+
 # Prompt to select which docker want to update {hummingbot or gateway}?
+# Script should be able to grep the directory of the container and return
+    # Stop, remove then create the container 
+    # Put on array then grep to locate the directory
 # DRY code as much as possible
+# FIX: container on use  / 
