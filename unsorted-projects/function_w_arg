@@ -3,7 +3,7 @@
 
 check_image (){
     local ci_image=("$@")
-    for i in "${ci_image}"; do
+    for i in "${ci_image[@]}"; do
         echo "$i"
     done
 }

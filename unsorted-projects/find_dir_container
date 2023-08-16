@@ -11,54 +11,55 @@ if [[ $docker_image == "" ]]; then
     docker_image="latest"
 fi
 
-check_image(){
-    local ci_image=$g
-    
+container_names=$(docker ps -a --filter ancestor=hummingbot/hummingbot:$docker_image --format "{{.Names}}")
+c_array=($container_names)
+
+create_container(){
+    local cc_image=("$@")
+    echo "Setup will remove the container and create again on the following directory:"
+    echo
+
+    for ((i=0; i< ${#cc_image[@]}; i++)); do
+        ii="${cc_image[((i))]}"
+        echo "   > ${PWD}/${ii}_files"
+    done
+
+    echo
+    read -p "Do you want to proceed? (default: yes) >> " cc_confirm
+    if [[ $cc_confirm == "" || $cc_confirm == "yes" || $cc_confirm == "Yes" || $cc_confirm == "Y" || $cc_confirm == "y" ]]; then
+        echo "create image"
+    else 
+        echo "exit"
+        exit
+    fi
 }
 
+check_image(){
+    # Check the image and return containers that are running
+    # Added a validation that if there are running containers, the setup will not continue and user must try again
 
-container_names=$(docker ps -a --filter ancestor=hummingbot/hummingbot:$docker_image --format "{{.Names}}")
-container_to_array=($container_names)
+    c_active=0
+    local ci_image=("$@")
 
-for ((i=0; i< ${#container_to_array[@]}; i++)); do
-    x="${container_to_array[((i))]}"
-    read -p "'$x' container will be created on '${PWD}/${x}_files/ (default: yes) >> " confirm_dir
-
-    if [[ $confirm_dir == "" ]]; then
-       if [ "$(docker inspect -f {{.State.Running}} $x)" == "true" ]; then
-            # check if there are active state containers and will not proceed with the setup
-            echo 
-            docker ps --filter "name=$x"
-            echo 
-            echo "'$x' is active at the moment, please stop the container first. Setup will exit now"
-            echo && exit
+    for ((i=0; i< ${#ci_image[@]}; i++)); do
+        ii="${ci_image[((i))]}"
+        if [ "$(docker inspect -f {{.State.Running}} $ii)" == "true" ]; then
+            ((c_active+=1))
         fi
-        xx = "${PWD}/${x}_files"
-        # docker rm $x
-        # docker run -itd --log-opt max-size=10m --log-opt max-file=5 \
-        # --network host \
-        # --name $x \
-        #     -v ${x}/conf:/home/hummingbot/conf \
-        #     -v ${xx}/conf/connectors:/home/hummingbot/conf/connectors \
-        #     -v ${xx}/conf/strategies:/home/hummingbot/conf/strategies \
-        #     -v ${xx}/logs:/home/hummingbot/logs \
-        #     -v ${xx}/data:/home/hummingbot/data \
-        #     -v ${xx}/pmm-scripts:/home/hummingbot/pmm-scripts \
-        #     -v ${xx}/scripts:/home/hummingbot/scripts \
-        #     -v ${xx}/certs:/home/hummingbot/certs \
-        # hummingbot/hummingbot:$docker_image
-    fi 
-done
-
-
-# IFS=$'\n' read -r -d '' -a container_names_array <<< "$container_names"
+    done
+    
+    if [[ $c_active > 0 ]]; then
+        docker ps --filter "ancestor=hummingbot/hummingbot:$docker_image"
+        echo
+        echo "Found $c_active active containers! cannot continue setup, please stop the active container and try again"
+        echo && exit
+    else
+        create_container "${ci_image[@]}"
+    fi
+}; check_image "${c_array[@]}"
 
 
 
-# for display_dir in "${set_container_dir[@]}"; do
-#     echo "display_dir"
-# done
 
 echo
 
-# refrain from using $HOME 
