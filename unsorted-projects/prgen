@@ -90,7 +90,7 @@ proceed_installation (){
 
     # clone and download repository and move to folder
     echo -ne "Cloning GitHub files to '$github_folder', downloading.."
-    git clone -b $github_branch $github_repo $github_folder &>/dev/null && cd $github_folder  
+    git clone -b $github_branch $github_repo $github_folder 2> "error-clone.log" && cd $github_folder  
     clear_waiting_time
 
     ENV_FILE=setup/environment.yml 
@@ -99,10 +99,10 @@ proceed_installation (){
     # if statement checks for Hummingbot on the env list then update or create
     if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
         echo -ne "Checking for available hummingbot env, this will take few minutes.."
-        ${CONDA_EXE} env update -f $ENV_FILE &>/dev/null
+        ${CONDA_EXE} env update -f $ENV_FILE > /dev/null 2>> "error-conda.log"
     else
         echo -ne " Creating Hummingbot env, this will take few minutes.."
-        ${CONDA_EXE} env create -f $ENV_FILE &>/dev/null
+        ${CONDA_EXE} env create -f $ENV_FILE > /dev/null 2>> "error-conda.log"
     fi && clear_waiting_time
 
     source "${CONDA_BIN}/activate" hummingbot # activates conda 
@@ -110,7 +110,7 @@ proceed_installation (){
     # if statement below checks if there is active conda env
     if [[ -n "$CONDA_DEFAULT_ENV" ]]; then
         echo -ne "Conda activate $CONDA_DEFAULT_ENV successfull! compiling files.. "
-        python setup.py build_ext --inplace &>/dev/null && clear_waiting_time # Run Hummingbot setup 
+        python setup.py build_ext --inplace > /dev/null 2>> "error-compile.log" && clear_waiting_time # Run Hummingbot setup 
         echo
         echo "===============  HUMMINGBOT SUCCESSFULLY INSTALLED ==============="
         echo
@@ -122,7 +122,7 @@ proceed_installation (){
 
         read -p "Do you want to start the Hummingbot client (default: yes) >> " check_start
         if [[ $check_start == "Yes" ]] || [[ $check_start == "y" ]] || [[ $check_start == "Y" ]] || [[ $check_start == "yes" ]] || [[ $check_start == "" ]]; then
-            echo "Hummingbot is loading now.." && bin/hummingbot.py # start Hummingbot client 
+            echo "Hummingbot is loading now.." && bin/hummingbot.py 2> "error-start.log" # start Hummingbot client 
         fi
 
         echo

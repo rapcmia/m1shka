@@ -16,7 +16,7 @@ c_array=($container_names)
 
 create_container(){
     local cc_image=("$@")
-    echo "Setup will remove the container and create again on the following directory:"
+    echo "Setup will remove and create the containers on the following directory:"
     echo
 
     for ((i=0; i< ${#cc_image[@]}; i++)); do
