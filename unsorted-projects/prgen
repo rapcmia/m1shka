@@ -108,6 +108,7 @@ proceed_installation (){
     source "${CONDA_BIN}/activate" hummingbot # activates conda 
 
     # if statement below checks if there is active conda env
+    display_commit=$(git log | head -5 | grep commit | sed 's/commit //') 
     if [[ -n "$CONDA_DEFAULT_ENV" ]]; then
         echo -ne "Conda activate $CONDA_DEFAULT_ENV successfull! compiling files.. "
         python setup.py build_ext --inplace > /dev/null 2>> "error-compile.log" && clear_waiting_time # Run Hummingbot setup 
@@ -117,19 +118,20 @@ proceed_installation (){
         echo
         echo "ℹ️  Repository: $github_repo"
         echo "ℹ️  Branch: $github_branch"
+        echo "ℹ️  Commit: $display_commit"
         echo
         echo
 
         read -p "Do you want to start the Hummingbot client (default: yes) >> " check_start
         if [[ $check_start == "Yes" ]] || [[ $check_start == "y" ]] || [[ $check_start == "Y" ]] || [[ $check_start == "yes" ]] || [[ $check_start == "" ]]; then
-            echo "Hummingbot is loading now.." && bin/hummingbot.py 2> "error-start.log" # start Hummingbot client 
+            echo "Hummingbot is loading now.." && ./start # start Hummingbot client 
         fi
 
         echo
         echo "To start Hummingbot client: "
         echo "1. Go to $PWD"
         echo "2. Run 'conda activate hummingbot'"
-        echo "3. Run 'bin/hummingbot.py'"
+        echo "3. Run './start'"
         echo
     else
         echo "Conda is not yet activated, please run 'conda activate hummingbot' then './compile'. Use 'bin/hummingbot.py' to start"
@@ -147,3 +149,8 @@ else
     exit 1
 fi
 
+## improvements:
+# - all error logs on one log file
+#   - add dates related ot the error for timeframe feature 
+#   - when error happened, exit the script and will not push to next process 
+# - on the last prompt, add info on which commit was pulled - (DONE!)
