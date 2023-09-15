@@ -1,3 +1,22 @@
 #!/bin/bash
 
+
 # create a script to remove conda env from the system 
+
+# banner
+echo
+echo
+echo "===============  HUMMINGBOT REMOVE CONDA ENV ==============="
+echo
+echo
+echo "ℹ️  Press [ENTER] for default values:"
+echo
+echo
+
+
+conda env list | grep hummingbot 
+echo
+
+read -p "Enter name of env that will be deleted (default: hummingbot) >> " select_env
+
+if [[]]

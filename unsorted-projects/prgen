@@ -1,4 +1,5 @@
 #!/bin/bash
+true
 
 # Compatibility logic for older Anaconda versions.
 if [ "${CONDA_EXE} " == " " ]; then
@@ -61,8 +62,7 @@ look_for_dir (){
                     github_folder="hummingbot($x)"
                 fi
 
-                if [ -d "$PWD/$github_folder" ]
-                then 
+                if [ -d "$PWD/$github_folder" ]; then 
                     x=$((x + 1)) # increments the default folder
                 else
                     folder_exist=true
@@ -85,13 +85,36 @@ clear_waiting_time (){
     echo -e " done!"
 }
 
+exit_setup_when_error (){
+    # exit setup and returns suggestion to user to check $error_log file 
+    if [ $? -ne 0 ]; then
+        if [ -d "$PWD/$github_folder" ]; then 
+            d="../$error_log"
+        else
+            d=$error_log
+        fi
+        echo -e "$(date +'%Y-%m-%d %H:%M:%S'): $check_error \n)" >> $d
+        echo
+        echo
+        echo
+        echo "⚠️  Error found, please check '$error_log' for more info"
+        echo 
+        echo 
+        exit 
+    fi
+}
+
 proceed_installation (){
     # this function installs the hummingbot program
 
+    # create and write error log file 
+    error_log=logs_${github_folder}.log 
+
     # clone and download repository and move to folder
     echo -ne "Cloning GitHub files to '$github_folder', downloading.."
-    git clone -b $github_branch $github_repo $github_folder 2> "error-clone.log" && cd $github_folder  
-    clear_waiting_time
+    check_error=$(git clone -b $github_branch $github_repo $github_folder 2>&1)
+    exit_setup_when_error
+    cd $github_folder && clear_waiting_time
 
     ENV_FILE=setup/environment.yml 
     CONDA_BIN=$(dirname ${CONDA_EXE})
@@ -99,19 +122,23 @@ proceed_installation (){
     # if statement checks for Hummingbot on the env list then update or create
     if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
         echo -ne "Checking for available hummingbot env, this will take few minutes.."
-        ${CONDA_EXE} env update -f $ENV_FILE > /dev/null 2>> "error-conda.log"
+        check_error=$("${CONDA_EXE}" env update -f "$ENV_FILE" 2>&1)
     else
         echo -ne " Creating Hummingbot env, this will take few minutes.."
-        ${CONDA_EXE} env create -f $ENV_FILE > /dev/null 2>> "error-conda.log"
-    fi && clear_waiting_time
+        check_error=$(${CONDA_EXE} env create -f $ENV_FILE 2>&1)
+    fi 
+    exit_setup_when_error
+    clear_waiting_time
 
     source "${CONDA_BIN}/activate" hummingbot # activates conda 
 
     # if statement below checks if there is active conda env
     display_commit=$(git log | head -5 | grep commit | sed 's/commit //') 
     if [[ -n "$CONDA_DEFAULT_ENV" ]]; then
-        echo -ne "Conda activate $CONDA_DEFAULT_ENV successfull! compiling files.. "
-        python setup.py build_ext --inplace > /dev/null 2>> "error-compile.log" && clear_waiting_time # Run Hummingbot setup 
+        echo -ne "Conda activate $CONDA_DEFAULT_ENV successfull! compiling files.."
+        check_error=$(python setup.py build_ext --inplace 2>&1)
+        exit_setup_when_error
+        clear_waiting_time
         echo
         echo "===============  HUMMINGBOT SUCCESSFULLY INSTALLED ==============="
         echo
@@ -148,9 +175,3 @@ else
     echo 
     exit 1
 fi
-
-## improvements:
-# - all error logs on one log file
-#   - add dates related ot the error for timeframe feature 
-#   - when error happened, exit the script and will not push to next process 
-# - on the last prompt, add info on which commit was pulled - (DONE!)

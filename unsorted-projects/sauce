@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+# # Create log file 
+
+# read -p "Enter folder name >> " folder_name
+# create_folder=${folder_name}.log
+# mkdir $create_folder
+
+
+echo "########"$'\n'"asdasd"
