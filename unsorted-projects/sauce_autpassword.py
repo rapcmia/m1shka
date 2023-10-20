@@ -1,3 +1,5 @@
+# this python script was created for user updaing admin password on credential.yml on hummingbot/dashboard 
+
 import streamlit_authenticator as stauth
 import ruamel.yaml as yaml
 import os
