@@ -19,7 +19,7 @@ fi
 # banner
 echo
 echo
-echo "===============  HUMMINGBOT PRGEN version 0.01 ==============="
+echo "===============  HUMMINGBOT PRGENTR ==============="
 echo
 echo
 echo "ℹ️  Press [ENTER] for default values:"

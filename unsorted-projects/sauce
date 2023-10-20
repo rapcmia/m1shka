@@ -8,4 +8,6 @@
 # mkdir $create_folder
 
 
-echo "########"$'\n'"asdasd"
+# echo "########"$'\n'"asdasd"
+source "${CONDA_BIN}/activate" dashboard # activate dashboard
+streamlit run main.py
