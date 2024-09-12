@@ -1,0 +1,65 @@
+#!/bin/bash
+
+clear
+
+read -p "Enter docker image (default: latest) >> " docker_image
+# read -p "Enter the directory of all container files >> " docker_container_dir
+echo
+
+# set docker_image to "latest" by default 
+if [[ $docker_image == "" ]]; then
+    docker_image="latest"
+fi
+
+container_names=$(docker ps -a --filter ancestor=hummingbot/hummingbot:$docker_image --format "{{.Names}}")
+c_array=($container_names)
+
+create_container(){
+    local cc_image=("$@")
+    echo "Setup will remove and create the containers on the following directory:"
+    echo
+
+    for ((i=0; i< ${#cc_image[@]}; i++)); do
+        ii="${cc_image[((i))]}"
+        echo "   > ${PWD}/${ii}_files"
+    done
+
+    echo
+    read -p "Do you want to proceed? (default: yes) >> " cc_confirm
+    if [[ $cc_confirm == "" || $cc_confirm == "yes" || $cc_confirm == "Yes" || $cc_confirm == "Y" || $cc_confirm == "y" ]]; then
+        echo "create image"
+    else 
+        echo "exit"
+        exit
+    fi
+}
+
+check_image(){
+    # Check the image and return containers that are running
+    # Added a validation that if there are running containers, the setup will not continue and user must try again
+
+    c_active=0
+    local ci_image=("$@")
+
+    for ((i=0; i< ${#ci_image[@]}; i++)); do
+        ii="${ci_image[((i))]}"
+        if [ "$(docker inspect -f {{.State.Running}} $ii)" == "true" ]; then
+            ((c_active+=1))
+        fi
+    done
+    
+    if [[ $c_active > 0 ]]; then
+        docker ps --filter "ancestor=hummingbot/hummingbot:$docker_image"
+        echo
+        echo "Found $c_active active containers! cannot continue setup, please stop the active container and try again"
+        echo && exit
+    else
+        create_container "${ci_image[@]}"
+    fi
+}; check_image "${c_array[@]}"
+
+
+
+
+echo
+

@@ -1,0 +1,4 @@
+#./bin/bash
+
+display_commit=$(git log | head -5 | grep commit | sed 's/commit //')
+echo $display_commit

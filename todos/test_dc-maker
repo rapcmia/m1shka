@@ -1,0 +1,34 @@
+#!/bin/bash
+
+
+# User requirements 
+# - Prompt about the docker compose maker 
+# - Enter preferred docker compose file name >>
+#     - if null, use dcmaker(01).yml
+# - Prompt that the file will be save on the same folder where the script is executed w/ "do you want to proceed?"
+#     - if null or no, exit setup
+#     - If yes:
+#        - Enter docker image tag (default: latest)
+#          - will use hummingbot/hummingbot tag 
+#        - Enter container name (default: hummingbot)
+#          - if no, exit setup
+#          - if yes:
+#             - prompt that setup will proceed with the docker image, docker container name w/ "do you want to proceed?"
+#             - if null or no, exit setup
+#             - if yes:
+#                 - Prompt do you want to setup gateway (default: no)?
+#                     - if null or no > proceed with creating docker compose file 
+#                     - if yes:
+#                       - Enter docker gateway image tag (default: latest)
+#                       - Enter docker gateway container name (default: gateway)
+#                       - Enter dir of certs file ?
+#                         - if null, exit setup
+#                         - if incorrect, rerun prompt for 3/3 then exit setup
+#                       - prompt that setup will proceed with:
+#                         - docker client's data
+#                         - docker gateway's data
+#                         - "do you want to proceed?
+#                           - if no, exit setup
+#                           - if yes create docker compose file 
+#                             - When successful, "do you want to run the name.yml file (default: yes)?
+#                               - if no, exit setup
