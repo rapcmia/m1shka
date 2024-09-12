@@ -75,22 +75,34 @@ look_for_dir (){
     fi
 }; look_for_dir
 
-echo 
-echo "Repository: $github_repo"
-echo "Checkout branch: $github_branch"
-echo "Directory: $PWD/$github_folder"
-
-# todo: add a function that check if there is a existing hummingbot env and prompt if user wants to remove
-
-read -p "Proceed? (default: yes) >> " github_next
-echo
 
 clear_waiting_time (){
     # Nothing fancy, just adding 'done' text
 
     sleep 0.02
     echo -e " done!"
-}
+};
+
+check_existing_env() {
+    echo
+    echo -n "Checking for hummingbot env..."
+    if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
+        echo " available!"
+        read -p "Do you want to remove? (default: no) >> " env_exist
+
+    else
+        sleep 0.2
+        echo " not available!"
+    fi
+}; check_existing_env
+
+echo 
+echo "Repository: $github_repo"
+echo "Checkout branch: $github_branch"
+echo "Directory: $PWD/$github_folder"
+
+read -p "Proceed? (default: yes) >> " github_next
+echo
 
 exit_setup_when_error (){
     # exit setup and returns suggestion to user to check $error_log file 
@@ -126,12 +138,18 @@ proceed_installation (){
     ENV_FILE=setup/environment.yml 
     CONDA_BIN=$(dirname ${CONDA_EXE})
 
+    # remove hummingbot if env_exist is yes
+    if [[ $env_exist == "Yes" ]] || [[ $env_exist == "y" ]] || [[ $env_exist == "Y" ]] || [[ $env_exist == "yes" ]]; then
+        echo -ne "Removing hummingbot env.." && conda remove -n hummingbot --all -y > /dev/null
+        clear_waiting_time
+    fi
+
     # if statement checks for Hummingbot on the env list then update or create
     if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
-        echo -ne "Checking for available hummingbot env, this will take few minutes.."
+        echo -ne "Updating hummingbot env, this will take few minutes.."
         check_error=$("${CONDA_EXE}" env update -f "$ENV_FILE" 2>&1)
     else
-        echo -ne " Creating Hummingbot env, this will take few minutes.."
+        echo -ne "Creating Hummingbot env, this will take few minutes.."
         check_error=$(${CONDA_EXE} env create -f $ENV_FILE 2>&1)
     fi 
     exit_setup_when_error
