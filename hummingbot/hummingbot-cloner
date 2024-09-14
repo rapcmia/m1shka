@@ -4,7 +4,6 @@
 Ralph: Created to make it easier to clone pull requests when testing https://github.com.hummingbot/hummingbot
 EOF
 
-
 # Compatibility logic for older Anaconda versions.
 if [ "${CONDA_EXE} " == " " ]; then
     CONDA_EXE=$((find /opt/conda/bin/conda || find ~/anaconda3/bin/conda || \
@@ -23,7 +22,7 @@ fi
 # banner
 echo
 echo
-echo "===============  HUMMINGBOT PRGENTR v1.0 ==============="
+echo "===============  HUMMINGBOT CLONER v1.0 ==============="
 echo
 echo
 echo "ℹ️  Press [ENTER] for default values:"
@@ -142,14 +141,14 @@ proceed_installation (){
     if [[ $env_exist == "Yes" ]] || [[ $env_exist == "y" ]] || [[ $env_exist == "Y" ]] || [[ $env_exist == "yes" ]]; then
         echo -ne "Removing hummingbot env.." && conda remove -n hummingbot --all -y > /dev/null
         clear_waiting_time
-    fi
+    fino
 
     # if statement checks for Hummingbot on the env list then update or create
     if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
         echo -ne "Updating hummingbot env, this will take few minutes.."
         check_error=$("${CONDA_EXE}" env update -f "$ENV_FILE" 2>&1)
     else
-        echo -ne "Creating Hummingbot env, this will take few minutes.."
+        echo -ne "Creating hummingbot env, this will take few minutes.."
         check_error=$(${CONDA_EXE} env create -f $ENV_FILE 2>&1)
     fi 
     exit_setup_when_error
