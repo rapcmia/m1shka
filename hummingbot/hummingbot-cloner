@@ -141,7 +141,7 @@ proceed_installation (){
     if [[ $env_exist == "Yes" ]] || [[ $env_exist == "y" ]] || [[ $env_exist == "Y" ]] || [[ $env_exist == "yes" ]]; then
         echo -ne "Removing hummingbot env.." && conda remove -n hummingbot --all -y > /dev/null
         clear_waiting_time
-    fino
+    fi
 
     # if statement checks for Hummingbot on the env list then update or create
     if ${CONDA_EXE} env list | egrep -qe "^hummingbot"; then
@@ -175,7 +175,8 @@ proceed_installation (){
 
         read -p "Do you want to start the Hummingbot client (default: yes) >> " check_start
         if [[ $check_start == "Yes" ]] || [[ $check_start == "y" ]] || [[ $check_start == "Y" ]] || [[ $check_start == "yes" ]] || [[ $check_start == "" ]]; then
-            echo "Hummingbot is loading now.."  
+            echo "Hummingbot is loading now.." 
+            ./start
         fi
 
         echo
@@ -190,8 +191,7 @@ proceed_installation (){
     fi
 }
 
-if [[ $github_next == "Yes" ]] || [[ $github_next == "y" ]] || [[ $github_next == "Y" ]] || [[ $github_next == "yes" ]] || [[ $github_next == "" ]]
-then 
+if [[ $github_next == "Yes" ]] || [[ $github_next == "y" ]] || [[ $github_next == "Y" ]] || [[ $github_next == "yes" ]] || [[ $github_next == "" ]]; then 
     proceed_installation
 else
     echo
