@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Name of the tmux session
+SESSION_NAME="deploy"
+
+# Start a new tmux session
+tmux new-session -d -s $SESSION_NAME
+
+# Pane 1: Navigate to directory and start Uvicorn
+tmux send-keys -t $SESSION_NAME "cd ~/rapcomia/hummingbot/backend-api/main-backendapi" C-m
+tmux send-keys -t $SESSION_NAME "s-backendapi" C-m
+
+# Split vertically for Pane 2
+tmux split-window -h
+tmux send-keys -t $SESSION_NAME "cd ~/s-dashboard" C-m
+tmux send-keys -t $SESSION_NAME "s-dashboard" C-m
+
+# Split horizontally for Pane 3
+tmux split-window -v
+tmux send-keys -t $SESSION_NAME "s-broker" C-m
+
+# Attach to the session
+tmux attach-session -t $SESSION_NAME
