@@ -122,17 +122,17 @@ pmm_next_script_config_filename() {
   local max_n=0
   local file base num
 
-  for file in "${SCRIPT_CONFIG_DIR}"/conf_market_making.pmm_simple_pmmsimple*.yml; do
+  for file in "${SCRIPT_CONFIG_DIR}"/conf_market_making_pmm_simple_pmmsimple*.yml; do
     [[ -e "$file" ]] || continue
     base="$(basename "$file" .yml)"
-    if [[ "$base" =~ ^conf_market_making\.pmm_simple_pmmsimple([0-9]+)$ ]]; then
+    if [[ "$base" =~ ^conf_market_making_pmm_simple_pmmsimple([0-9]+)$ ]]; then
       num="${BASH_REMATCH[1]}"
       num=$((10#$num))
       (( num > max_n )) && max_n=$num
     fi
   done
 
-  printf 'conf_market_making.pmm_simple_pmmsimple%02d.yml' $((max_n + 1))
+  printf 'conf_market_making_pmm_simple_pmmsimple%02d.yml' $((max_n + 1))
 }
 
 pmm_script_config_filename_for_controller() {
@@ -140,7 +140,7 @@ pmm_script_config_filename_for_controller() {
   local suffix="${controller_id#*_}"
 
   if [[ "$suffix" =~ ^pmmsimple[0-9]+$ ]]; then
-    printf 'conf_market_making.pmm_simple_%s.yml' "$suffix"
+    printf 'conf_market_making_pmm_simple_%s.yml' "$suffix"
   else
     pmm_next_script_config_filename
   fi
@@ -259,7 +259,6 @@ YAML
   script_config_path="${SCRIPT_CONFIG_DIR}/${script_config_filename}"
 
   cat > "$script_config_path" <<YAML
-markets: {}
 controllers_config:
 - ${controller_filename}
 script_file_name: v2_with_controllers.py
@@ -357,10 +356,10 @@ gridstrike_next_script_config_filename() {
   local max_n=0
   local file base num
 
-  for file in "${SCRIPT_CONFIG_DIR}"/conf_generic.grid_strike_gridstrike*.yml; do
+  for file in "${SCRIPT_CONFIG_DIR}"/conf_generic_grid_strike_gridstrike*.yml; do
     [[ -e "$file" ]] || continue
     base="$(basename "$file" .yml)"
-    if [[ "$base" =~ ^conf_generic\.grid_strike_gridstrike([0-9]+)$ ]]; then
+    if [[ "$base" =~ ^conf_generic_grid_strike_gridstrike([0-9]+)$ ]]; then
       num="${BASH_REMATCH[1]}"
       num=$((10#$num))
       if (( num > max_n )); then
@@ -369,7 +368,7 @@ gridstrike_next_script_config_filename() {
     fi
   done
 
-  printf 'conf_generic.grid_strike_gridstrike%02d.yml' $((max_n + 1))
+  printf 'conf_generic_grid_strike_gridstrike%02d.yml' $((max_n + 1))
 }
 
 gridstrike_script_config_filename_for_controller() {
@@ -377,7 +376,7 @@ gridstrike_script_config_filename_for_controller() {
   local suffix="${controller_id#*_}"
 
   if [[ "$suffix" =~ ^gridstrike[0-9]+$ ]]; then
-    printf 'conf_generic.grid_strike_%s.yml' "$suffix"
+    printf 'conf_generic_grid_strike_%s.yml' "$suffix"
   else
     gridstrike_next_script_config_filename
   fi
@@ -488,7 +487,6 @@ YAML
   script_config_path="${SCRIPT_CONFIG_DIR}/${script_config_filename}"
 
   cat > "$script_config_path" <<YAML
-markets: {}
 controllers_config:
 - ${output_filename}
 script_file_name: v2_with_controllers.py
